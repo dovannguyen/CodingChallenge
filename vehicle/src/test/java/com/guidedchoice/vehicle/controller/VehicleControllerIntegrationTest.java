@@ -1,5 +1,6 @@
 package com.guidedchoice.vehicle.controller;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,10 +47,10 @@ public class VehicleControllerIntegrationTest {
       throws Exception {
          
 		Vehicle[] vehicles = {
-				new Vehicle(2019, "Tesla", "Model 3"),
+				new Vehicle(2019, "Tesla-test", "Model 3"),
 				new Vehicle(2015, "Nissan", "Leaf"),
 				new Vehicle(2018, "Huydai", "Kona"),
-				new Vehicle(2020, "Tesla", "Model Y"),
+				new Vehicle(2020, "Tesla-test", "Model Y"),
 		};
 
         List<Vehicle> allVehicles = Stream.of(vehicles).collect(Collectors.toList());
@@ -64,5 +65,32 @@ public class VehicleControllerIntegrationTest {
 			.andExpect(jsonPath("$[1].model", is(allVehicles.get(1).getModel())))
 			.andExpect(jsonPath("$[2].model", is(allVehicles.get(2).getModel())))
         	.andExpect(jsonPath("$[3].model", is(allVehicles.get(3).getModel())));
+    }
+    
+    @Test
+    public void givenVehicles_whenGetVehiclesByMake_thenReturnJsonArray()
+      throws Exception {
+         
+		Vehicle[] vehicles = {
+				new Vehicle(2019, "Tesla", "Model 300"),
+				new Vehicle(2015, "Nissan", "Leaf"),
+				new Vehicle(2018, "Huydai", "Kona"),
+				new Vehicle(2020, "Tesla", "Model XYZ"),
+		};
+
+        List<Vehicle> teslaTests = Stream.of(vehicles)
+        		.filter(v -> v.getMake().equals("Tesla"))
+        		.collect(Collectors.toList());
+        
+        given(vehicleService.getVehiclesByMake("Tesla")).willReturn(teslaTests);
+     
+		mvc.perform(get("/vehicles/search/Tesla")
+			.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$", hasSize(2)))
+			.andExpect(jsonPath("$[0].make", is(teslaTests.get(0).getMake())))
+			.andExpect(jsonPath("$[0].model", is(teslaTests.get(0).getModel())))
+			.andExpect(jsonPath("$[1].make", is(teslaTests.get(1).getMake())))
+        	.andExpect(jsonPath("$[1].model", is(teslaTests.get(1).getModel())));
     }
 }
