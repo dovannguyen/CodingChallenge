@@ -20,6 +20,12 @@ import com.guidedchoice.vehicle.entity.Vehicle;
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
 	
+	/**
+	 * This is a custom finder to filter all vehicles by Make.
+	 * 
+	 * @param make: the Make of the vehicle to filter on, e.g Tesla
+	 * @return a collection of Vehicle of the Make criteria.
+	 */
 	@Query(value="SELECT * FROM Vehicle WHERE Make = ?", nativeQuery=true)
 	Collection<Vehicle> findByMake(String make);
 }
